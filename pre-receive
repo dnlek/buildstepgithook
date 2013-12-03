@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+while read oldrev newrev refname
+do
+    if [[ $refname = "refs/heads/master" ]] ; then
+      # Kasujemy niedziałające procesy
+      docker ps -a | grep 'Exit' |  awk '{print $1}' | xargs docker rm &> /dev/null &
+
+      # Kasujemy nieużywane obrazy
+      docker images | grep '<none>' |  awk '{print $3}'  | xargs docker rmi &> /dev/null &
+
+      git archive $newrev | sudo /home/vagrant/buildstep project
+    fi
+done
